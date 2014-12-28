@@ -1,0 +1,3 @@
+[submodule "plover"]
+	path = plover
+	url = https://github.com/openstenoproject/plover.git
