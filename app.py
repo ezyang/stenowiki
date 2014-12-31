@@ -156,7 +156,7 @@ class Entry(Versioned, Base):
     content = db.Column(db.Text())
     content_html = db.Column(db.Text())
     is_brief = db.Column(db.Boolean())
-    timestamp = db.Column(db.DateTime())
+    timestamp = db.Column(db.DateTime(), index=True)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     user = sqlalchemy.orm.relationship("User")
 
@@ -215,7 +215,8 @@ def filter_markdown(arg):
 
 @app.route("/")
 def index():
-    return render_template('index.html')
+    es = Entry.query.order_by(Entry.timestamp.desc()).limit(20)
+    return render_template('index.html', es=es)
 
 @app.route("/search")
 def search():

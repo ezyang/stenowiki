@@ -13,5 +13,16 @@
   <form method="get" action="{{ url_for("search") }}">
     <p>To get started, look up a word: <input type="text" name="word"><input type="submit" value="Go!"></p>
   </form>
+  <p>Recently updated:</p>
+    <table class="word-strokes">
+      {% for e in es %}
+        <tr>
+          <th><a href="{{ url_for("word", value=e.word) }}">{{ e.word }}</a></th>
+          <th><a href="{{ url_for("stroke", value=e.stroke) }}">{{ e.sound | sound }}</a></th>
+          <td>{{ e.content | markdown }}</td>
+          <td class="edit"><a href="{{ url_for("stroke", value=e.stroke) }}?action=edit">edited</a> by&nbsp;{{ e.user.username }}</td>
+        </tr>
+      {% endfor %}
+    </table>
   <p>The contents of this wiki are licensed under <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.  The wiki itself is licensed under <a href="http://www.gnu.org/licenses/gpl-2.0.html">GPLv2</a> and its source code is available on <a href="https://github.com/ezyang/stenowiki">GitHub</a>.</p>
 {% endblock %}
