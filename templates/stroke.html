@@ -25,6 +25,7 @@
     {% endif %}
   </h1>
   {% if action == "edit" %}
+    {% if current_user.is_authenticated() %}
     <form method="post" action="">
       {{ form.csrf_token }}
       <dl class="forms">
@@ -68,6 +69,9 @@
     <p>
     The description box takes <a href="http://daringfireball.net/projects/markdown/syntax">Markdown</a>, but with two enhancements: you can link to strokes using a double curly brace (<code>{{ '{{HAT}}' }}</code>) and words using double square brackets (<code>[[hat]]</code>).
     </p>
+    {% else %}
+    Sorry, you have to be logged in to edit.
+    {% endif %}
   {% else %}
     {% if is_default %}
       <div>

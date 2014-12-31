@@ -14,6 +14,8 @@ import flask
 from flask import Flask, render_template, redirect, url_for, request
 import flask_wtf
 import flask_wtf.csrf
+import flask_login
+from werkzeug.security import generate_password_hash, check_password_hash
 
 from jinja2 import Markup
 
@@ -33,9 +35,12 @@ app = Flask(__name__)
 app.config.from_object('settings')
 flask_wtf.csrf.CsrfProtect(app)
 
+login_manager = flask_login.LoginManager()
+login_manager.init_app(app)
+
 the_steno = steno.Steno([app.config["DICTIONARY_FILE"]])
 
-engine = sqlalchemy.create_engine('sqlite:////tmp/test.db', convert_unicode=True)
+engine = sqlalchemy.create_engine(app.config["SQLALCHEMY_DATABASE_URI"], convert_unicode=True)
 db_session = sqlalchemy.orm.scoped_session(sqlalchemy.orm.sessionmaker(autocommit=False,
                                          autoflush=False,
                                          bind=engine))
@@ -43,6 +48,97 @@ versioned_session(db_session)
 Base = sqlalchemy.ext.declarative.declarative_base()
 Base.query = db_session.query_property()
 db = sqlalchemy
+
+class User(Base):
+    __tablename__ = 'users'
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(20), unique=True)
+    password = db.Column(db.String(64))
+    realname = db.Column(db.String(100))
+    email = db.Column(db.String(100))
+
+    def is_authenticated(self): return True
+    def is_active(self): return True
+    def is_anonymous(self): return False
+    def get_id(self): return self.id
+    def __unicode__(self): return self.username
+
+@login_manager.user_loader
+def load_user(user_id):
+    return db_session.query(User).get(user_id)
+
+class LoginForm(flask_wtf.Form):
+    username = wtforms.TextField(validators=[wtforms.validators.Required()])
+    password = wtforms.PasswordField(validators=[wtforms.validators.Required()])
+    def validate_username(self, field):
+        user = self.get_user()
+        if user is None:
+            raise wtforms.ValidationError('Invalid user')
+        if not check_password_hash(user.password, self.password.data):
+            raise wtforms.ValidationError('Invalid password')
+    def get_user(self):
+        return db_session.query(User).filter_by(username=self.username.data).first()
+
+@app.route('/login', methods=('GET', 'POST'))
+def login():
+    # handle user login
+    form = LoginForm(request.form)
+    if request.method == 'POST' and form.validate():
+        user = form.get_user()
+        flask_login.login_user(user)
+    if flask_login.current_user.is_authenticated():
+        return redirect(url_for('index'))
+    return render_template('login.html', form=form)
+
+@app.route('/logout')
+def logout():
+    flask_login.logout_user()
+    return redirect(url_for('index'))
+
+class UserForm(flask_wtf.Form):
+    realname = wtforms.TextField('Real name (optional)')
+    email = wtforms.TextField('Email', validators=[wtforms.validators.required()])
+    password = wtforms.PasswordField('Password')
+
+@app.route('/user', methods=('GET', 'POST'))
+def user():
+    if not flask_login.current_user.is_authenticated():
+        return "Can't edit user data if not logged in"
+    form = UserForm(request.form, flask_login.current_user)
+    updated = False
+    if request.method == 'POST' and form.validate():
+        flask_login.current_user.realname = form.realname.data
+        flask_login.current_user.email = form.email.data
+        if form.password.data:
+            flask_login.current_user.password = generate_password_hash(form.password.data)
+        db_session.commit()
+        updated = True
+    return render_template('user.html', form=form, updated=updated)
+
+class RegisterForm(flask_wtf.Form):
+    username = wtforms.TextField('User name', validators=[wtforms.validators.required()])
+    realname = wtforms.TextField('Real name (optional)')
+    email = wtforms.TextField('Email', validators=[wtforms.validators.required()])
+    password = wtforms.PasswordField('Password', validators=[wtforms.validators.required()])
+    admin_password = wtforms.PasswordField('Admin password')
+    def validate_login(self, field):
+        if db_session.query(User).filter_by(login=self.login.data).count() > 0:
+            raise validators.ValidationError('Duplicate username')
+
+@app.route('/register', methods=('GET', 'POST'))
+def register():
+    form = RegisterForm(request.form)
+    if request.method == 'POST' and form.validate():
+        if not flask_login.current_user.is_authenticated() and \
+               form.admin_password.data != app.config["ADMIN_PASSWORD"]:
+            return "Only registered users can register users"
+        user = User()
+        form.populate_obj(user)
+        user.password = generate_password_hash(form.password.data)
+        db_session.add(user)
+        db_session.commit()
+        return redirect(url_for('index'))
+    return render_template('register.html', form=form)
 
 class Entry(Versioned, Base):
     __tablename__ = 'entries'
@@ -163,6 +259,8 @@ def stroke(value):
     form = StrokeForm(request.form, obj=e)
     form.stroke = stroke_text # HACK
     if request.method == 'POST' and form.validate():
+        if not flask_login.current_user.is_authenticated():
+            return "You must be logged in to edit entries"
         if is_default: db_session.add(e)
         e.sound = form.sound.data
         e.content = form.content.data

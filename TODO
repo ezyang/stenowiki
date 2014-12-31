@@ -1,13 +1,15 @@
 Release blocker:
 
-- User logins, and mention who last edited a page
+- Mention who last edited a page / who has edited
+
+Other:
 
 - CSS rules for rendering misstrokes, and indicate a misstroke
   differently in the UI
 
 - CSS rules for rendering briefs
 
-Other:
+- On login, return to the page you previously were on
 
 - Export database to JavaScript
 

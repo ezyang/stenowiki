@@ -1,0 +1,18 @@
+{% extends "layout.html" %}
+{% block title %}
+  Register - StenoWiki
+{% endblock %}
+{% block content %}
+  <h1>Register - StenoWiki</h1>
+    <form method="post" action="">
+      {{ form.csrf_token }}
+      <dl class="forms">
+        {{ render_field(form.username) }}
+        {{ render_field(form.realname) }}
+        {{ render_field(form.email) }}
+        {{ render_field(form.password) }}
+        {{ render_field(form.admin_password) }}
+      </dl>
+      <input type="submit" value="Register">
+    </form>
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends "layout.html" %}
+{% block title %}
+  Login - StenoWiki
+{% endblock %}
+{% block content %}
+  <h1>Login - StenoWiki</h1>
+    <form method="post" action="">
+      {{ form.csrf_token }}
+      <dl class="forms">
+        {{ render_field(form.username) }}
+        {{ render_field(form.password) }}
+      </dl>
+      <input type="submit" value="Login">
+    </form>
+    <p>To prevent spam, only registered users can register other users.
+    <a href="mailto:ezyang@cs.stanford.edu">Get in touch with me</a> if
+    you want an account.</p>
+{% endblock %}

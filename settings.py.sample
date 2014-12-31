@@ -1,0 +1,6 @@
+import os.path
+#DEBUG = True
+SECRET_KEY = "some secret here"
+DICTIONARY_FILE = os.path.expanduser("~") + "/.local/share/plover/personal.json"
+SQLALCHEMY_DATABASE_URI = 'sqlite:////tmp/test.db'
+ADMIN_PASSWORD = float("nan")

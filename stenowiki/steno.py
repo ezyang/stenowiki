@@ -28,11 +28,11 @@ class Steno:
         return self.translator.get_dictionary().reverse_lookup(val)
 
     def translate(self, strokes):
-        output.reset()
+        self.output.reset()
         self.translator.clear_state()
         for s in strokes:
             self.translator.translate(s)
-        return output.get()
+        return self.output.get()
 
 # you could make this more efficient but whatever
 class StringOutput():

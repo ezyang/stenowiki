@@ -100,7 +100,14 @@ textarea {
 </head>
 <body>
   <form method="get" action="{{ url_for("search") }}" style="text-align:right;">
-    <a href="{{ url_for("index") }}">StenoWiki</a> |
+    <a href="{{ url_for("index") }}">StenoWiki</a>
+    |
+    {% if current_user.is_authenticated() %}
+    <strong><a href="{{ url_for("user") }}">{{ current_user.username }}</a></strong> (<a href="{{ url_for("logout") }}">Logout</a>)
+    {% else %}
+    <a href="{{ url_for("login") }}">Login</a>
+    {% endif %}
+    |
     Search: <input type="text" name="word"><input type="submit" value="Go!">
   </form>
   {% block content %}{% endblock %}
