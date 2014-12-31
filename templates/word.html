@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+{% block title %}
+{{ word }} - StenoWiki
+{% endblock %}
+{% block content %}
+<h1>{{ word }}</h1>
+<table class="word-strokes">
+{% for e in es %}
+  <tr>
+    <th>{{ e.sound | sound }}</th>
+    <td>{{ e.content | markdown }}</td>
+    <td><a href="{{ url_for("stroke", value=e.stroke) }}?action=edit">edit</a></td>
+  </tr>
+{% endfor %}
+</table>
+{% endblock %}

@@ -1,25 +1,65 @@
+{% macro render_field(field) %}
+  <dt>{{ field.label }}
+  <dd>{{ field(**kwargs)|safe }}
+  {% if field.errors %}
+    <ul class="errors">
+    {% for error in field.errors %}
+      <li>{{ error }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+  </dd>
+{% endmacro %}
 <!doctype html>
 <html>
 <head>
 <title>{% block title %}{% endblock %}</title>
 <style>
+a:hover { background: #CCCCFF }
 th { text-align: right; vertical-align: top; }
-table.sounds {
+.sounds {
     border-spacing: 2px;
     display: inline-table;
 }
-table.sounds td {
+.sounds .cell {
     text-align: center;
     padding: 0px;
     border: 0px none;
+    display: table-cell;
 }
-table.sounds tr.phonemes td {
+.sounds .phonemes {
+    display: table-row;
+}
+.sounds .strokes {
+    display: table-row;
+}
+.sounds .phonemes .cell {
     font-size: 80%;
     line-height: 70%;
 }
-table.sounds td.multi {
+.sounds .cell.multi {
     text-decoration: underline
 }
+table.word-strokes {
+    width: 100%;
+}
+table.word-strokes th {
+    font-weight: normal;
+    vertical-align: top;
+    text-align: left;
+    width: 10em;
+}
+table.word-strokes td {
+    vertical-align: top;
+}
+table.word-strokes p {
+    margin-top: 0;
+}
+textarea {
+    width: 40em;
+    height: 20em;
+}
+.errors { color: darkred }
 </style>
 </head>
 <body>

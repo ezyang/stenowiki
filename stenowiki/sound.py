@@ -1,6 +1,6 @@
 import json
 import re
-import xml.etree.ElementTree as ET
+from markdown.util import etree
 import collections
 
 phonemes = collections.OrderedDict([
@@ -151,6 +151,9 @@ def parse(val):
         elif t == "*":
             in_right = True
             sounds.append(Phoneme("", "*", "asterisk"))
+        elif t == "/":
+            in_right = True
+            sounds.append(Phoneme("", "/", "slash"))
         else:
             match = re.match(r'^(!?)(-?[a-z]+\*?)(?::([A-Z*\-]+))?', t)
             if match:
@@ -181,21 +184,30 @@ def parse(val):
 class Sounds:
     def __init__(self, sounds):
         self.sounds = sounds
-    def html(self):
-        table = ET.Element('table', { "class": "sounds" })
-        stroke_row = ET.SubElement(table, 'tr', { "class": "strokes" })
+    def stroke(self):
+        stroke = ""
         for sound in self.sounds:
-            td = ET.SubElement(stroke_row, 'td', { "class": sound.attr })
+            if isinstance(sound, Phoneme):
+                if sound.stroke.find("-") == 0 and sound.stroke != "-":
+                    stroke += sound.stroke[1:]
+                else:
+                    stroke += sound.stroke
+        return stroke
+    def html(self):
+        table = etree.Element('span', { "class": "sounds" })
+        stroke_row = etree.SubElement(table, 'span', { "class": "strokes" })
+        for sound in self.sounds:
+            td = etree.SubElement(stroke_row, 'span', { "class": sound.attr + " cell" })
             if isinstance(sound, Phoneme):
                 if sound.stroke.find("-") == 0 and sound.stroke != "-":
                     td.text = sound.stroke[1:]
                 else:
                     td.text = sound.stroke
             if len(td.text) > 1:
-                td.set("class", sound.attr + " multi")
-        phon_row = ET.SubElement(table, 'tr', { "class": "phonemes" })
+                td.set("class", sound.attr + " cell multi")
+        phon_row = etree.SubElement(table, 'span', { "class": "phonemes" })
         for sound in self.sounds:
-            td = ET.SubElement(phon_row, 'td', { "class": sound.attr })
+            td = etree.SubElement(phon_row, 'span', { "class": sound.attr + " cell" })
             if isinstance(sound, Phoneme):
                 out = sound.phoneme.replace("*", "")
                 if out.find("-") == 0:
