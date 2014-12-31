@@ -26,6 +26,7 @@
   </h1>
   {% if action == "edit" %}
     <form method="post" action="">
+      {{ form.csrf_token }}
       <dl class="forms">
         {{ render_field(form.sound) }}
         {{ render_field(form.content) }}

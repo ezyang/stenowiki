@@ -153,18 +153,21 @@ def parse(val):
             in_right = True
             sounds.append(Phoneme("", "*", "asterisk"))
         elif t == "/":
-            in_right = True
+            in_right = False
             sounds.append(Phoneme("", "/", "slash"))
         else:
             match = re.match(r'^(!?)(-?[a-z]+\*?)(?::([A-Z*\-]+))?', t)
             if match:
                 phoneme = match.group(2)
+                # UGHHHH
                 if in_right and phoneme.find('-') != 0:
                     phoneme = '-' + phoneme
                 if phoneme.find('-') == 0:
                     in_right = True
                 stroke = match.group(3)
                 if stroke is None:
+                    if phoneme not in phonemes and phoneme.find('-') == 0:
+                        phoneme = phoneme[1:]
                     if phoneme not in phonemes:
                         sounds.append(Junk(t))
                         continue

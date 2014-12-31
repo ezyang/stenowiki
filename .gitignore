@@ -1,3 +1,4 @@
 tags
 *.bak
 *.pyc
+settings.py

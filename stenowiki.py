@@ -12,6 +12,8 @@ sys.path.insert(0, os.path.join(_root_dir, "plover"))
 
 import flask
 from flask import Flask, render_template, redirect, url_for, request
+import flask_wtf
+import flask_wtf.csrf
 
 from jinja2 import Markup
 
@@ -37,6 +39,8 @@ Base.query = db_session.query_property()
 db = sqlalchemy
 
 app = Flask(__name__)
+app.config.from_object('settings')
+flask_wtf.csrf.CsrfProtect(app)
 
 class Entry(Versioned, Base):
     __tablename__ = 'entries'
@@ -103,10 +107,13 @@ def filter_markdown(arg):
 def index():
     return render_template('index.html')
 
-# TODO: Handle strokes too
 @app.route("/search")
 def search():
     word = request.args.get('word')
+    strokes = steno.normalize(word)
+    if strokes is not None:
+        stroke_text = '/'.join(map(lambda s: s.rtfcre, strokes))
+        return redirect(url_for("stroke", value=stroke_text))
     # TODO: if it's not a match do a fuzzy search
     return redirect(url_for("word", value=word))
 
@@ -122,7 +129,7 @@ def add_stroke():
         return "STROKE DOESN'T MAKE WORD" # TODO
     return redirect(url_for("stroke", value=stroke_text, action="edit"))
 
-class StrokeForm(wtforms.Form):
+class StrokeForm(flask_wtf.Form):
     sound = wtforms.TextField('Phonetic sounding')
     content = wtforms.TextAreaField('Description')
     is_brief = wtforms.BooleanField('Brief?')
@@ -186,5 +193,5 @@ def shutdown_session(exception=None):
     db_session.remove()
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()
     pass
