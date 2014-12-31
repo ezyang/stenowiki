@@ -1,0 +1,28 @@
+<!doctype html>
+<html>
+<head>
+<title>{% block title %}{% endblock %}</title>
+<style>
+th { text-align: right; vertical-align: top; }
+table.sounds {
+    border-spacing: 2px;
+    display: inline-table;
+}
+table.sounds td {
+    text-align: center;
+    padding: 0px;
+    border: 0px none;
+}
+table.sounds tr.phonemes td {
+    font-size: 80%;
+    line-height: 70%;
+}
+table.sounds td.multi {
+    text-decoration: underline
+}
+</style>
+</head>
+<body>
+    {% block content %}{% endblock %}
+</body>
+</html>

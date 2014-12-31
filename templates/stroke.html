@@ -1,0 +1,82 @@
+{% extends "layout.html" %}
+{% block title %}
+  {% if action == "edit" %}
+    Editing
+  {% endif %}
+  {{ e.stroke }} ({{ e.word }})
+{% endblock %}
+{% block content %}
+  <h1>
+    {% if action == "edit" %}
+      Editing
+    {% endif %}
+    {% if is_default %}
+      {{ e.stroke }}
+    {% else %}
+      {{ sound_html | safe }}
+    {% endif %}
+    ({{ e.word }})
+    <sup><a href="?action=edit">Edit</a></sup>
+  </h1>
+  {% if action == "edit" %}
+    {% if is_default %}
+      <p>Creating an entry for {{ e.stroke }}.</p>
+    {% endif %}
+    <form method="post" action="">
+      <table>
+        <tr>
+          <th><label for="sound">Phonetic sounding:</label></th>
+          <td><input name="sound" type="text" value="{{ e.sound }}"></td>
+        </tr>
+        <tr>
+          <th><label for="content">Description:</label></th>
+          <td><textarea name="content" cols="80" rows="10">{{ e.content }}</textarea></td>
+        </tr>
+        <tr>
+          <th></th>
+          <td><input type="submit" value="Submit"></td>
+        </tr>
+      </table>
+    </form>
+    <p>
+      <strong>How to edit</strong>:  The phonetic sounding is a space-separated list of phonetic
+      sounds which combine together to form the stroke in question.  For
+      example, <code>j u f t</code> phonetically sounds the stroke for SKWRUFT.
+      The full syntax is:
+    </p>
+    <pre>sound ::=
+    | "-" # disambiguating hyphen
+    | "*" # the asterisk
+    # An exclamation mark indicates a misstroke.  You
+    # can explicitly specify a stroke for a phoneme the
+    # system doesn't understand with a colon.
+    | ["!"] phoneme [ ":" stroke ]
+    # square brackets can be used to show inversions
+    | "[" | "]"
+    </pre>
+    <p>
+      Eventually, I'll make a nice JavaScript widget which you can use to put together
+      phonetic soundings, but for now, take a look at existing samples to see what
+      works.  Here is the full list of phonemes which we support natively:
+      {% for phoneme in phonemes %}
+        <code title="{{ phoneme[1] }}">{{ phoneme[0] }}</code>
+      {% endfor %}
+      (Note: it's not necessary to include the hyphen if a phoneme is unambiguously
+      on the right side, using the same rules as steno strokes.  Also, the asterisked
+      vowel phonemes are a hack to help get the asterisk in the right position when a vowel
+      chord extends over the asterisk key.)
+    </p>
+    <p>
+    The description box takes <a href="http://daringfireball.net/projects/markdown/syntax">Markdown</a>, but with two enhancements: you can link to strokes using a double curly brace (<code>{{ '{{HAT}}' }}</code>) and words using double square brackets (<code>[[hat]]</code>).
+    </p>
+  {% else %}
+    {% if is_default %}
+      <div>
+        There is no entry for {{ e.stroke }}.  You can <a
+          href="?action=edit">create one</a>.
+      </div>
+    {% else %}
+      <div>{{ e.content_html | safe }}</div>
+    {% endif %}
+  {% endif %}
+{% endblock %}
