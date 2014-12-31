@@ -142,7 +142,7 @@ def register():
         db_session.add(user)
         db_session.commit()
         # TODO: this doesn't work
-        if not flask.login.current_user.is_authenticated():
+        if not flask_login.current_user.is_authenticated():
             flask_login.login_user(user, remember=True)
         return redirect(url_for('index'))
     return render_template('register.html', form=form)
