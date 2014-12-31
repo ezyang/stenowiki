@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+{% block title %}
+  StenoWiki
+{% endblock %}
+{% block content %}
+  <h1>StenoWiki</h1>
+  <p><strong>StenoWiki</strong> is a collaborative wiki for documenting
+  and describing the <a href="http://plover.stenoknight.com/">Plover</a>
+  stenography theory.  If you've ever wondered, "Why is that stroked
+  this way?" or "How was this brief constructed?", this wiki is for you!
+  Our hope is to construct a useful, living document to help you
+  understand the theory.</p>
+  <form method="get" action="{{ url_for("search") }}">
+    <p>To get started, look up a word: <input type="text" name="word"><input type="submit" value="Go!"></p>
+  </form>
+  <p>The contents of this wiki are licensed under <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.  The wiki itself is licensed under <a href="http://www.gnu.org/licenses/gpl-2.0.html">GPLv2</a> and its source code is available on <a href="https://github.com/ezyang/stenowiki">GitHub</a>.</p>
+{% endblock %}

@@ -15,7 +15,7 @@
     {% else %}
       {{ sound_html }}
     {% endif %}
-    ({{ e.word }})
+    (<a href="{{ url_for("word", value=e.word) }}">{{ e.word }}</a>)
     <sup><a href="?action=edit">Edit</a></sup>
   </h1>
   {% if action == "edit" %}
@@ -23,8 +23,11 @@
       <p>Creating an entry for {{ e.stroke }}.</p>
     {% endif %}
     <form method="post" action="">
-      {{ render_field(form.sound) }}
-      {{ render_field(form.content) }}
+      <dl class="forms">
+        {{ render_field(form.sound) }}
+        {{ render_field(form.content) }}
+        {{ render_field(form.is_brief) }}
+      </dl>
       <input type="submit" value="Submit">
     </form>
     <p>

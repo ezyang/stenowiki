@@ -19,7 +19,7 @@ import sqlalchemy
 import sqlalchemy.orm
 import sqlalchemy.ext.declarative
 
-from wtforms import Form, TextField, TextAreaField, validators, ValidationError
+import wtforms
 
 from stenowiki import steno, sound
 # NB: versioned doesn't work with flask-sqlalchemy
@@ -46,6 +46,7 @@ class Entry(Versioned, Base):
     word = db.Column(db.String(50))
     content = db.Column(db.Text())
     content_html = db.Column(db.Text())
+    is_brief = db.Column(db.Boolean())
 
     def __init__(self, stroke, word):
         self.stroke = stroke
@@ -53,21 +54,10 @@ class Entry(Versioned, Base):
         self.sound = ""
         self.content = ""
         self.content_html = ""
+        self.is_brief = False
 
     def __repr__(self):
         return '<Entry %s %s %s _>' % (self.stroke, self.sound, self.word)
-
-@app.route("/")
-def hello():
-    return "Hello"
-
-class StrokeForm(Form):
-    sound = TextField('Phonetic sounding')
-    content = TextAreaField('Description')
-    def validate_sound(self, field):
-        s = sound.parse(field.data).stroke()
-        if s != self.stroke:
-            raise ValidationError("Your phonetic sounding is for stroke %s, but the stroke you are editing is %s" % (s, self.stroke))
 
 @app.template_filter('sound')
 def filter_sound(arg):
@@ -86,6 +76,7 @@ class WikiLinkPattern(markdown.inlinepatterns.Pattern):
         if strokes:
             stroke_text = '/'.join(map(lambda s: s.rtfcre, strokes))
             el = etree.Element('a', {'href': url_for('stroke', value=stroke_text)})
+            # warning: performance bomb!
             e = Entry.query.filter_by(stroke=stroke_text).first()
             if e is None:
                 el.text = stroke_text
@@ -108,6 +99,40 @@ def filter_markdown(arg):
     html = steno_markdown.convert(arg)
     return Markup(bleach.clean(html, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES))
 
+@app.route("/")
+def index():
+    return render_template('index.html')
+
+# TODO: Handle strokes too
+@app.route("/search")
+def search():
+    word = request.args.get('word')
+    # TODO: if it's not a match do a fuzzy search
+    return redirect(url_for("word", value=word))
+
+@app.route("/add_stroke")
+def add_stroke():
+    word = request.args.get('word')
+    strokes = steno.normalize(request.args.get('stroke'))
+    if strokes is None:
+        return "BAD STROKE" # TODO
+    stroke_text = '/'.join(map(lambda s: s.rtfcre, strokes))
+    expected_word = steno.translate(strokes)
+    if word != expected_word:
+        return "STROKE DOESN'T MAKE WORD" # TODO
+    return redirect(url_for("stroke", value=stroke_text, action="edit"))
+
+class StrokeForm(wtforms.Form):
+    sound = wtforms.TextField('Phonetic sounding')
+    content = wtforms.TextAreaField('Description')
+    is_brief = wtforms.BooleanField('Brief?')
+    def validate_sound(self, field):
+        s = sound.parse(field.data).stroke()
+        if s == "":
+            raise wtforms.ValidationError("I didn't understand your phonetic sounding.  Check the help for more details.")
+        if s != self.stroke:
+            raise wtforms.ValidationError("Your phonetic sounding is for stroke %s, but the stroke you are editing is %s" % (s, self.stroke))
+
 @app.route("/stroke/<path:value>", methods=['GET', 'POST'])
 def stroke(value):
     strokes = steno.normalize(value)
@@ -128,7 +153,8 @@ def stroke(value):
         if is_default: db_session.add(e)
         e.sound = form.sound.data
         e.content = form.content.data
-        e.content_html = flask.escape(e.content) # TODO
+        e.is_brief = form.is_brief.data
+        e.content_html = filter_markdown(e.content).__html__()
         db_session.commit()
         return redirect(url_for("stroke", value=stroke_text))
     action = request.args.get('action')

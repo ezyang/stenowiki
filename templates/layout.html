@@ -52,6 +52,9 @@ table.word-strokes th {
 table.word-strokes td {
     vertical-align: top;
 }
+table.word-strokes td.edit {
+    width: 3em;
+}
 table.word-strokes p {
     margin-top: 0;
 }
@@ -60,9 +63,44 @@ textarea {
     height: 20em;
 }
 .errors { color: darkred }
+ dl.forms {
+  float: left;
+  width: 100%;
+ }
+
+ dl.forms dt {
+  margin: 0;
+  padding: 10px 10px 0 0;
+  clear: left;
+  float: left;
+  width: 175px;
+  text-align: right;
+ }
+
+ dl.forms label { font-weight: bold; }
+
+ dl.forms dd {
+  margin: 0;
+  padding: 10px 0 0 0;
+ }
+
+ dl.forms dd.help {
+  clear: left;
+  padding-top: 2px;
+  font-size: 90%;
+  color: #999;
+ }
+
+ dl.forms dd.radio input { width: auto; }
+
+ dl.forms textarea { height: 150px; }
 </style>
 </head>
 <body>
-    {% block content %}{% endblock %}
+  <form action="get" action="{{ url_for("search") }}" style="float:right;">
+    <a href="{{ url_for("index") }}">StenoWiki</a> |
+    Search: <input type="text" name="word"><input type="submit" value="Go!">
+  </form>
+  {% block content %}{% endblock %}
 </body>
 </html>
