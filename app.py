@@ -1,19 +1,18 @@
 import os
 import sys
 import re
+import datetime
+
 import bleach
 import markdown
 import markdown.extensions
 from markdown.util import etree
 
-_root_dir = os.path.dirname(__file__)
-sys.path.insert(0, _root_dir)
-sys.path.insert(0, os.path.join(_root_dir, "plover"))
-
 import flask
 from flask import Flask, render_template, redirect, url_for, request
 import flask_wtf
 import flask_wtf.csrf
+import wtforms
 import flask_login
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -23,7 +22,9 @@ import sqlalchemy
 import sqlalchemy.orm
 import sqlalchemy.ext.declarative
 
-import wtforms
+_root_dir = os.path.dirname(__file__)
+sys.path.insert(0, _root_dir)
+sys.path.insert(0, os.path.join(_root_dir, "plover"))
 
 from stenowiki import steno, sound
 # NB: versioned doesn't work with flask-sqlalchemy
@@ -48,6 +49,9 @@ versioned_session(db_session)
 Base = sqlalchemy.ext.declarative.declarative_base()
 Base.query = db_session.query_property()
 db = sqlalchemy
+
+def install():
+    Base.metadata.create_all(bind=engine)
 
 class User(Base):
     __tablename__ = 'users'
@@ -85,7 +89,7 @@ def login():
     form = LoginForm(request.form)
     if request.method == 'POST' and form.validate():
         user = form.get_user()
-        flask_login.login_user(user)
+        flask_login.login_user(user, remember=True)
     if flask_login.current_user.is_authenticated():
         return redirect(url_for('index'))
     return render_template('login.html', form=form)
@@ -137,6 +141,9 @@ def register():
         user.password = generate_password_hash(form.password.data)
         db_session.add(user)
         db_session.commit()
+        # TODO: this doesn't work
+        if not flask.login.current_user.is_authenticated():
+            flask_login.login_user(user, remember=True)
         return redirect(url_for('index'))
     return render_template('register.html', form=form)
 
@@ -149,6 +156,9 @@ class Entry(Versioned, Base):
     content = db.Column(db.Text())
     content_html = db.Column(db.Text())
     is_brief = db.Column(db.Boolean())
+    timestamp = db.Column(db.DateTime())
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    user = sqlalchemy.orm.relationship("User")
 
     def __init__(self, stroke, word):
         self.stroke = stroke
@@ -157,6 +167,8 @@ class Entry(Versioned, Base):
         self.content = ""
         self.content_html = ""
         self.is_brief = False
+        self.timestamp = datetime.datetime.now()
+        self.user_id = None
 
     def __repr__(self):
         return '<Entry %s %s %s _>' % (self.stroke, self.sound, self.word)
@@ -262,6 +274,7 @@ def stroke(value):
         if not flask_login.current_user.is_authenticated():
             return "You must be logged in to edit entries"
         if is_default: db_session.add(e)
+        e.user_id = flask_login.current_user.id
         e.sound = form.sound.data
         e.content = form.content.data
         e.is_brief = form.is_brief.data
@@ -283,15 +296,9 @@ def word(value):
     other_strokes = filter(lambda s: s not in available, map(lambda s: '/'.join(s), results))
     return render_template('word.html', word=value, es=es, other_strokes=other_strokes)
 
-@app.route("/install")
-def install():
-    Base.metadata.create_all(bind=engine)
-    return "OK"
-
 @app.teardown_appcontext
 def shutdown_session(exception=None):
     db_session.remove()
 
 if __name__ == "__main__":
     app.run()
-    pass

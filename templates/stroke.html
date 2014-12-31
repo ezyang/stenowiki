@@ -80,6 +80,7 @@
       </div>
     {% else %}
       <div>{{ e.content | markdown }}</div>
+      <div><em>Last edited by {{ e.user.username }} on {{ e.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</em></div>
     {% endif %}
   {% endif %}
 {% endblock %}

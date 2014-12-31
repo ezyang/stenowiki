@@ -4,6 +4,8 @@ Release blocker:
 
 Other:
 
+- I think the remember me functionality doesn't work
+
 - CSS rules for rendering misstrokes, and indicate a misstroke
   differently in the UI
 
