@@ -12,9 +12,18 @@
     <td class="edit"><a href="{{ url_for("stroke", value=e.stroke) }}?action=edit">edit</a></td>
   </tr>
 {% endfor %}
+{% for stroke in other_strokes %}
+  <tr>
+    <th><a href="{{ url_for("stroke", value=stroke) }}?action=edit">{{ stroke }}</a></th>
+    <td><em>(default entry)</em></td>
+    <td class="edit"><a href="{{ url_for("stroke", value=stroke) }}?action=edit">edit</a></td>
+  </tr>
+{% endfor %}
 </table>
+<!--
 <form method='get' action='{{ url_for("add_stroke") }}'>
   <p>Add a stroke: <input type='text' name='stroke'><input type='submit' value='Go!'></p>
   <input type='hidden' name='word' value='{{ word }}' />
 </form>
+-->
 {% endblock %}

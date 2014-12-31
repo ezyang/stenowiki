@@ -2,6 +2,7 @@
 import plover.dictionary.base
 import plover.translation
 import plover.formatting
+import plover.steno_dictionary
 
 from plover.exception import InvalidConfigurationError, DictionaryLoaderException
 from plover.steno import Stroke, normalize_steno
@@ -9,7 +10,7 @@ from plover.steno import Stroke, normalize_steno
 import re
 
 try:
-    dicts = [plover.dictionary.base.load_dictionary("/home/ezyang/.local/share/plover/personal.json")]
+    dicts = [plover.dictionary.base.load_dictionary("/home/ezyang/.local/share/plover/dict.json")]
 except DictionaryLoaderException as e:
     raise InvalidConfigurationError(unicode(e))
 
@@ -29,8 +30,12 @@ class StringOutput():
         else:
             return x
 
+the_dict = plover.steno_dictionary.StenoDictionaryCollection()
+the_dict.set_dicts(dicts)
+
 def new_translator():
     translator = plover.translation.Translator()
+    # TODO: hmm, this might be a bit inefficient, looks like dicts gets copied
     translator.get_dictionary().set_dicts(dicts)
     translator.set_min_undo_length(10)
     formatter = plover.formatting.Formatter()
@@ -38,6 +43,9 @@ def new_translator():
     formatter.set_output(output)
     translator.add_listener(formatter.format)
     return translator, output
+
+def reverse_lookup(val):
+    return the_dict.reverse_lookup(val)
 
 # this is actually a trick to make sure the hyphen is in
 # the right place: otherwise Plover accepts H-AT and produces

@@ -41,7 +41,7 @@ app = Flask(__name__)
 class Entry(Versioned, Base):
     __tablename__ = 'entries'
     id = db.Column(db.Integer, primary_key=True)
-    stroke = db.Column(db.String(25), unique=True)
+    stroke = db.Column(db.String(100), unique=True)
     sound = db.Column(db.String(100))
     word = db.Column(db.String(50))
     content = db.Column(db.Text())
@@ -127,9 +127,13 @@ class StrokeForm(wtforms.Form):
     content = wtforms.TextAreaField('Description')
     is_brief = wtforms.BooleanField('Brief?')
     def validate_sound(self, field):
-        s = sound.parse(field.data).stroke()
+        sounds = sound.parse(field.data)
+        junk = filter(lambda s: isinstance(s, sound.Junk), sounds.sounds)
+        if len(junk) > 0:
+            raise wtforms.ValidationError("I didn't understand the phoneme(s): %s" % ', '.join(map(lambda s: s.junk, junk)))
+        s = sounds.stroke()
         if s == "":
-            raise wtforms.ValidationError("I didn't understand your phonetic sounding.  Check the help for more details.")
+            raise wtforms.ValidationError("Phonetic sounding was empty!")
         if s != self.stroke:
             raise wtforms.ValidationError("Your phonetic sounding is for stroke %s, but the stroke you are editing is %s" % (s, self.stroke))
 
@@ -166,7 +170,11 @@ def stroke(value):
 @app.route("/word/<path:value>")
 def word(value):
     es = Entry.query.filter_by(word=value)
-    return render_template('word.html', word=value, es=es)
+    available = set(map(lambda e: e.stroke, es))
+    results = steno.reverse_lookup(value)
+    if results is None: results = []
+    other_strokes = filter(lambda s: s not in available, map(lambda s: '/'.join(s), results))
+    return render_template('word.html', word=value, es=es, other_strokes=other_strokes)
 
 @app.route("/install")
 def install():

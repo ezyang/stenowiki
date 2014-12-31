@@ -2,10 +2,6 @@ Release blocker:
 
 - User logins, and mention who last edited a page
 
-- Automatically prefill word pages with strokes that produce the word.
-  This is a little algorithmically complex if we want to handle orthographics
-  (Release blocker is just the simple prefill)
-
 - CSS rules for rendering misstrokes, and indicate a misstroke
   differently in the UI
 
@@ -30,3 +26,6 @@ Other:
   which are not strokeable, versus words which have no entries?
 
 - Recently updated list
+
+- Handle orthographics in reverse lookup (and upstream to Plover!)
+

@@ -36,6 +36,7 @@ phonemes = collections.OrderedDict([
         ("ew", "AOU"),
         ("aw", "AU"),
         ("ow", "OU"),
+        ("ou", "OU"),
         ("oi", "OEU"),
         ("ea", "AE"),
         ("ae", "AE"),

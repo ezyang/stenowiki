@@ -8,20 +8,23 @@
 {% block content %}
   <h1>
     {% if action == "edit" %}
-      Editing
+      {% if is_default %}
+        Creating
+      {% else %}
+        Editing
+      {% endif %}
     {% endif %}
-    {% if is_default %}
-      {{ e.stroke }}
+    {% if action == "edit" %}
+        <a href="{{ url_for("stroke", value=e.stroke) }}">{% if is_default %}{{ e.stroke }}{% else %}{{ sound_html }}{% endif %}</a>
     {% else %}
-      {{ sound_html }}
+        {% if is_default %}{{ e.stroke }}{% else %}{{ sound_html }}{% endif %}
     {% endif %}
     (<a href="{{ url_for("word", value=e.word) }}">{{ e.word }}</a>)
+    {% if action != "edit" %}
     <sup><a href="?action=edit">Edit</a></sup>
+    {% endif %}
   </h1>
   {% if action == "edit" %}
-    {% if is_default %}
-      <p>Creating an entry for {{ e.stroke }}.</p>
-    {% endif %}
     <form method="post" action="">
       <dl class="forms">
         {{ render_field(form.sound) }}
