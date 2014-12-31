@@ -71,7 +71,9 @@ class StrokeForm(Form):
 
 @app.template_filter('sound')
 def filter_sound(arg):
-    return Markup(etree.tostring(sound.parse(arg).html()))
+    # make sure to call tostring with method='html', otherwise it will
+    # output <span />
+    return Markup(etree.tostring(sound.parse(arg).html(), method='html'))
 
 ALLOWED_TAGS = ('b','i','strong','em','p','div','span','a','ul','ol','li','br','code','del','pre','s','strike','sub','sup','table')
 
