@@ -7,7 +7,7 @@
 <table class="word-strokes">
 {% for e in es %}
   <tr>
-    <th>{{ e.sound | sound }}</th>
+    <th><a href="{{ url_for("stroke", value=e.stroke) }}">{{ e.sound | sound }}</a></th>
     <td>{{ e.content | markdown }}</td>
     <td><a href="{{ url_for("stroke", value=e.stroke) }}?action=edit">edit</a></td>
   </tr>
