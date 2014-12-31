@@ -115,6 +115,7 @@ def user():
         flask_login.current_user.email = form.email.data
         if form.password.data:
             flask_login.current_user.password = generate_password_hash(form.password.data)
+        db_session.add(flask_login.current_user)
         db_session.commit()
         updated = True
     return render_template('user.html', form=form, updated=updated)
