@@ -9,10 +9,30 @@ from plover.steno import Stroke, normalize_steno
 
 import re
 
-try:
-    dicts = [plover.dictionary.base.load_dictionary("/home/ezyang/.local/share/plover/dict.json")]
-except DictionaryLoaderException as e:
-    raise InvalidConfigurationError(unicode(e))
+class Steno:
+    def __init__(self, files):
+        try:
+            dicts = map(plover.dictionary.base.load_dictionary, files)
+        except DictionaryLoaderException as e:
+            raise InvalidConfigurationError(unicode(e))
+
+        self.translator = plover.translation.Translator()
+        self.translator.get_dictionary().set_dicts(dicts)
+        self.translator.set_min_undo_length(10)
+        self.formatter = plover.formatting.Formatter()
+        self.output = StringOutput()
+        self.formatter.set_output(self.output)
+        self.translator.add_listener(self.formatter.format)
+
+    def reverse_translate(self,val):
+        return self.translator.get_dictionary().reverse_lookup(val)
+
+    def translate(self, strokes):
+        output.reset()
+        self.translator.clear_state()
+        for s in strokes:
+            self.translator.translate(s)
+        return output.get()
 
 # you could make this more efficient but whatever
 class StringOutput():
@@ -22,30 +42,13 @@ class StringOutput():
         self.buffer = self.buffer[:-n]
     def send_string(self, s):
         self.buffer += s
-    def get(self):
-        x = self.buffer
+    def reset(self):
         self.buffer = ""
-        if x[0] == " ":
-            return x[1:]
+    def get(self):
+        if self.buffer[0] == " ":
+            return self.buffer[1:]
         else:
-            return x
-
-the_dict = plover.steno_dictionary.StenoDictionaryCollection()
-the_dict.set_dicts(dicts)
-
-def new_translator():
-    translator = plover.translation.Translator()
-    # TODO: hmm, this might be a bit inefficient, looks like dicts gets copied
-    translator.get_dictionary().set_dicts(dicts)
-    translator.set_min_undo_length(10)
-    formatter = plover.formatting.Formatter()
-    output = StringOutput()
-    formatter.set_output(output)
-    translator.add_listener(formatter.format)
-    return translator, output
-
-def reverse_lookup(val):
-    return the_dict.reverse_lookup(val)
+            return self.buffer
 
 # this is actually a trick to make sure the hyphen is in
 # the right place: otherwise Plover accepts H-AT and produces
@@ -77,9 +80,3 @@ def stroke(s):
         else:
             keys.append('-' + k)
     return Stroke(keys)
-
-def translate(strokes):
-    translator, output = new_translator()
-    for s in strokes:
-        translator.translate(s)
-    return output.get()

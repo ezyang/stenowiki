@@ -29,6 +29,12 @@ from stenowiki import steno, sound
 # so we do it manually
 from stenowiki.history_meta import Versioned, versioned_session
 
+app = Flask(__name__)
+app.config.from_object('settings')
+flask_wtf.csrf.CsrfProtect(app)
+
+the_steno = steno.Steno([app.config["DICTIONARY_FILE"]])
+
 engine = sqlalchemy.create_engine('sqlite:////tmp/test.db', convert_unicode=True)
 db_session = sqlalchemy.orm.scoped_session(sqlalchemy.orm.sessionmaker(autocommit=False,
                                          autoflush=False,
@@ -37,10 +43,6 @@ versioned_session(db_session)
 Base = sqlalchemy.ext.declarative.declarative_base()
 Base.query = db_session.query_property()
 db = sqlalchemy
-
-app = Flask(__name__)
-app.config.from_object('settings')
-flask_wtf.csrf.CsrfProtect(app)
 
 class Entry(Versioned, Base):
     __tablename__ = 'entries'
@@ -124,7 +126,7 @@ def add_stroke():
     if strokes is None:
         return "BAD STROKE" # TODO
     stroke_text = '/'.join(map(lambda s: s.rtfcre, strokes))
-    expected_word = steno.translate(strokes)
+    expected_word = the_steno.translate(strokes)
     if word != expected_word:
         return "STROKE DOESN'T MAKE WORD" # TODO
     return redirect(url_for("stroke", value=stroke_text, action="edit"))
@@ -156,7 +158,7 @@ def stroke(value):
     is_default = False
     if e is None:
         # would be better if we could see that steno.translate "failed"
-        e = Entry(stroke_text, steno.translate(strokes))
+        e = Entry(stroke_text, the_steno.translate(strokes))
         is_default = True
     form = StrokeForm(request.form, obj=e)
     form.stroke = stroke_text # HACK
@@ -178,7 +180,7 @@ def stroke(value):
 def word(value):
     es = Entry.query.filter_by(word=value)
     available = set(map(lambda e: e.stroke, es))
-    results = steno.reverse_lookup(value)
+    results = the_steno.reverse_translate(value)
     if results is None: results = []
     other_strokes = filter(lambda s: s not in available, map(lambda s: '/'.join(s), results))
     return render_template('word.html', word=value, es=es, other_strokes=other_strokes)
