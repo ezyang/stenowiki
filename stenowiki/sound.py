@@ -14,6 +14,7 @@ phonemes = collections.OrderedDict([
         ("r", "R"),
         ("*", "*"),
         ("-f", "-F"),
+        ("-v", "-F"),
         ("-r", "-R"),
         ("-p", "-P"),
         ("-b", "-B"),
