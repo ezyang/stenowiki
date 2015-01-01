@@ -232,6 +232,8 @@ class Sounds:
                     td.text = "s"
                 elif out == "wv":
                     td.text = "v"
+                elif out == "zz":
+                    td.text = "z"
                 elif out.find("-") == 0:
                     td.text = out[1:]
                 else:
