@@ -1,5 +1,7 @@
 Other:
 
+- {{- g t}} for soundings without linking
+
 - After editing stroke go to previous page (e.g. if one word page,
   go back to word page)
 

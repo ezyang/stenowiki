@@ -156,6 +156,12 @@ def parse(val):
             in_right = False
             sounds.append(Phoneme("", "/", "slash"))
         else:
+            match = re.match(r'^!([A-Z*\-]+)', t)
+            if match:
+                stroke = match.group(1)
+                attr = 'misstroke'
+                sounds.append(Phoneme("", stroke, attr))
+                continue
             match = re.match(r'^(!?)(-?[a-z]+\*?)(?::([A-Z*\-]+))?', t)
             if match:
                 phoneme = match.group(2)
