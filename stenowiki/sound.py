@@ -203,6 +203,8 @@ class Sounds:
                 else:
                     stroke += sound.stroke
         return stroke
+    def __str__(self):
+        return ' '.join(map(lambda s: str(s), self.sounds))
     def html(self):
         table = etree.Element('span', { "class": "sounds" })
         stroke_row = etree.SubElement(table, 'span', { "class": "strokes" })
@@ -244,9 +246,14 @@ class Phoneme(Sound):
         if self.attr == "phoneme":
             return self.phoneme
         elif self.attr == "misstroke":
-            return "!" + self.phoneme + ":" + self.stroke
+            if not self.phoneme:
+                return "!" + self.stroke
+            else:
+                return "!" + self.phoneme + ":" + self.stroke
         elif self.attr == "custom":
             return self.phoneme + ":" + self.stroke
+        else:
+            return self.stroke
 
 class BeginInversion(Sound):
     def __init__(self): self.attr = "begin-inversion"
@@ -298,3 +305,77 @@ class Junk(Sound):
 #
 # The asterisk handling is a sort of "worse is better" approach, but
 # I don't think we lose any semantic meaning by doing it this way.
+
+# cribbed from https://plover.goeswhere.com/
+meanings = [
+    { "from": "STKPW", "to": "z" },
+    { "from": "SKWR", "to": "j" },
+    { "from": "TKPW", "to": "g" },
+    { "from": "PBLG", "to": "j" },
+    { "from": "KWR", "to": "y" },
+    { "from": "TPH", "to": "n" },
+    { "from": "KHR", "to": ["k", "l"] }, # not ch-r
+    { "from": "PHR", "to": ["p", "l"] }, # not m-r
+    { "from": "BGS", "to": "kshun" },
+    { "from": "SR", "to": "v" },
+    { "from": "TK", "to": "d" },
+    { "from": "TP", "to": "f" },
+    { "from": "PH", "to": "m" },
+    { "from": "PW", "to": "b" },
+    { "from": "KW", "to": "q" },
+    { "from": "HR", "to": "l" },
+    { "from": "KP", "to": "x" },
+    { "from": "FP", "to": "ch" },
+    { "from": "RB", "to": "sh" },
+    { "from": "PB", "to": "n" },
+    { "from": "PL", "to": "m" },
+    { "from": "BG", "to": "k" },
+    { "from": "GS", "to": "shun" },
+    { "from": "TH", "to": "th" },
+    { "from": "KH", "to": "ch" },
+    { "from": "SH", "to": "sh" },
+    { "from": "AO*EU", "to": "eye*" },
+    { "from": "A*EU", "to": "ay*" },
+    { "from": "AO*E", "to": "ee*" },
+    { "from": "AO*U", "to": "oo*" },
+    { "from": "O*EU", "to": "oi*" },
+    { "from": "A*U", "to": "aw*" },
+    { "from": "A*E", "to": "ae*" },
+    { "from": "O*U", "to": "ow*" },
+    { "from": "O*E", "to": "oh*" },
+    { "from": "AOEU", "to": "eye" },
+    { "from": "AEU", "to": "ay" },
+    { "from": "AOE", "to": "ee" },
+    { "from": "AOU", "to": "oo" },
+    { "from": "OEU", "to": "oi" },
+    { "from": "AU", "to": "aw" },
+    { "from": "EA", "to": "ea" },
+    { "from": "OU", "to": "ow" },
+    { "from": "EU", "to": "i" },
+    { "from": "OE", "to": "oh" },
+    { "from": "AO", "to": "oo" },
+  ]
+
+def guess_sound(stroke):
+    sounds = []
+    i = 0
+    while i < len(stroke):
+        done = False
+        for m in meanings:
+            if stroke.startswith(m["from"], i):
+                sounds.append(Phoneme(m["to"], m["from"], "phoneme"))
+                i += len(m["from"])
+                done = True
+                break
+        if done: continue
+        if stroke[i] == "*":
+            sounds.append(Phoneme("", "*", "asterisk"))
+        elif stroke[i] == "-":
+            sounds.append(Phoneme("", "-", "hyphen"))
+        elif stroke[i] == "/":
+            sounds.append(Phoneme("", "/", "slash"))
+        else:
+            # missing dashes
+            sounds.append(Phoneme(stroke[i].lower(), stroke[i], "phoneme"))
+        i += 1
+    return Sounds(sounds)

@@ -12,11 +12,11 @@
     <td class="edit"><a href="{{ url_for("stroke", value=e.stroke) }}?action=edit">edit</a></td>
   </tr>
 {% endfor %}
-{% for stroke in other_strokes %}
+{% for e in other_entries %}
   <tr>
-    <th><a href="{{ url_for("stroke", value=stroke) }}?action=edit">{{ stroke }}</a></th>
+    <th><a href="{{ url_for("stroke", value=e.stroke) }}?action=edit">{{ e.sound | sound }}</a></th>
     <td><em>(default entry)</em></td>
-    <td class="edit"><a href="{{ url_for("stroke", value=stroke) }}?action=edit">edit</a></td>
+    <td class="edit"><a href="{{ url_for("stroke", value=e.stroke) }}?action=edit">edit</a></td>
   </tr>
 {% endfor %}
 </table>

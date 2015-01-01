@@ -161,10 +161,10 @@ class Entry(Versioned, Base):
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     user = sqlalchemy.orm.relationship("User")
 
-    def __init__(self, stroke, word):
+    def __init__(self, stroke, word, sound):
         self.stroke = stroke
         self.word = word
-        self.sound = ""
+        self.sound = sound
         self.content = ""
         self.content_html = ""
         self.is_brief = False
@@ -268,7 +268,7 @@ def stroke(value):
     is_default = False
     if e is None:
         # would be better if we could see that steno.translate "failed"
-        e = Entry(stroke_text, the_steno.translate(strokes))
+        e = Entry(stroke_text, the_steno.translate(strokes), str(sound.guess_sound(stroke_text)))
         is_default = True
     form = StrokeForm(request.form, obj=e)
     form.stroke = stroke_text # HACK
@@ -279,6 +279,7 @@ def stroke(value):
         e.user_id = flask_login.current_user.id
         e.sound = form.sound.data
         e.content = form.content.data
+        e.word = the_steno.translate(strokes)
         e.is_brief = form.is_brief.data
         e.content_html = filter_markdown(e.content).__html__()
         db_session.commit()
@@ -296,7 +297,8 @@ def word(value):
     results = the_steno.reverse_translate(value)
     if results is None: results = []
     other_strokes = filter(lambda s: s not in available, map(lambda s: '/'.join(s), results))
-    return render_template('word.html', word=value, es=es, other_strokes=other_strokes)
+    other_entries = map(lambda s: Entry(s, value, str(sound.guess_sound(s))), other_strokes)
+    return render_template('word.html', word=value, es=es, other_entries=other_entries)
 
 @app.teardown_appcontext
 def shutdown_session(exception=None):
