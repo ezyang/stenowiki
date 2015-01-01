@@ -318,7 +318,7 @@ class Junk(Sound):
 
 # cribbed from https://plover.goeswhere.com/
 meanings = [
-    { "from": "STKPW", "to": "z" },
+    { "from": "STKPW", "to": "zz" },
     { "from": "SKWR", "to": "j" },
     { "from": "TKPW", "to": "g" },
     { "from": "PBLG", "to": "j" },
