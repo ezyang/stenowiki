@@ -207,7 +207,7 @@ class Sounds:
                     td.text = sound.stroke[1:]
                 else:
                     td.text = sound.stroke
-            if len(td.text) > 1:
+            if td.text and len(td.text) > 1:
                 td.set("class", sound.attr + " cell multi")
         phon_row = etree.SubElement(table, 'span', { "class": "phonemes" })
         for sound in self.sounds:

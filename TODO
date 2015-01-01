@@ -1,5 +1,8 @@
 Other:
 
+- After editing stroke go to previous page (e.g. if one word page,
+  go back to word page)
+
 - CSS rules for rendering misstrokes, and indicate a misstroke
   differently in the UI
 
