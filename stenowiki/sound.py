@@ -10,6 +10,7 @@ phonemes = collections.OrderedDict([
         ("k", "K"),
         ("p", "P"),
         ("w", "W"),
+        ("wv", "W"),
         ("h", "H"),
         ("r", "R"),
         ("*", "*"),
@@ -229,6 +230,8 @@ class Sounds:
                 # special case
                 if out == "fs" or out == "-fs":
                     td.text = "s"
+                elif out == "wv":
+                    td.text = "v"
                 elif out.find("-") == 0:
                     td.text = out[1:]
                 else:
@@ -321,8 +324,9 @@ meanings = [
     { "from": "PBLG", "to": "j" },
     { "from": "KWR", "to": "y" },
     { "from": "TPH", "to": "n" },
-    { "from": "KHR", "to": ["k", "l"] }, # not ch-r
-    { "from": "PHR", "to": ["p", "l"] }, # not m-r
+    { "from": "KHR", "to": ["-k", "l"] }, # not ch-r
+    { "from": "PHR", "to": ["-p", "l"] }, # not m-r
+    { "from": "FPL", "to": ["-fs", "-m"] }, # not ch-l
     { "from": "BGS", "to": "kshun" },
     { "from": "SR", "to": "v" },
     { "from": "TK", "to": "d" },
