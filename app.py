@@ -214,9 +214,15 @@ class WikiLinkPattern(markdown.inlinepatterns.Pattern):
             el.text = val
             return el
 
+class SoundPattern(markdown.inlinepatterns.Pattern):
+    def handleMatch(self, m):
+        val = m.group(2)
+        return sound.parse(val).html()
+
 class StenoExtension(markdown.extensions.Extension):
     def extendMarkdown(self, md, md_globals):
-        md.inlinePatterns.add('wikilink', WikiLinkPattern(r'\[\[([^\[\]]+)\]\]'), '<reference')
+        md.inlinePatterns.add('wikilink', WikiLinkPattern(r'\[\[([^\]]+)\]\]'), '<reference')
+        md.inlinePatterns.add('sound', SoundPattern(r'\{\{([^\}]+)\}\}'), '<reference')
 
 steno_markdown = markdown.Markdown(extensions=[StenoExtension()])
 
