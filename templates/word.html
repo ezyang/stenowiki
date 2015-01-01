@@ -18,7 +18,7 @@
 {% for e in other_entries %}
   <tr style="background:#F2F2F2">
     <th><a href="{{ url_for("stroke", value=e.stroke) }}?action=edit">{{ e.sound | sound }}</a></th>
-    <td><em>(default entry)</em></td>
+    <td><em>Default entry.</em></td>
     <td class="edit"><a href="{{ url_for("stroke", value=e.stroke) }}?action=edit">edit</a></td>
   </tr>
 {% endfor %}
