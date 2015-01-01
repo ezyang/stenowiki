@@ -100,8 +100,8 @@ def logout():
     return redirect(url_for('index'))
 
 class UserForm(flask_wtf.Form):
-    realname = wtforms.TextField('Real name (optional)')
-    email = wtforms.TextField('Email', validators=[wtforms.validators.required()])
+    realname = wtforms.TextField('Real name')
+    email = wtforms.TextField('Email')
     password = wtforms.PasswordField('Password')
 
 @app.route('/user', methods=('GET', 'POST'))
@@ -122,7 +122,7 @@ def user():
 
 class RegisterForm(flask_wtf.Form):
     username = wtforms.TextField('User name', validators=[wtforms.validators.required()])
-    realname = wtforms.TextField('Real name (optional)')
+    realname = wtforms.TextField('Real name')
     email = wtforms.TextField('Email', validators=[wtforms.validators.required()])
     password = wtforms.PasswordField('Password', validators=[wtforms.validators.required()])
     admin_password = wtforms.PasswordField('Admin password')
