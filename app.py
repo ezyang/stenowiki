@@ -123,7 +123,7 @@ def user():
 class RegisterForm(flask_wtf.Form):
     username = wtforms.TextField('User name', validators=[wtforms.validators.required()])
     realname = wtforms.TextField('Real name')
-    email = wtforms.TextField('Email', validators=[wtforms.validators.required()])
+    email = wtforms.TextField('Email')
     password = wtforms.PasswordField('Password', validators=[wtforms.validators.required()])
     admin_password = wtforms.PasswordField('Admin password')
     def validate_login(self, field):
