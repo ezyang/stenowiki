@@ -171,6 +171,17 @@ class Entry(Versioned, Base):
         self.timestamp = datetime.datetime.now()
         self.user_id = None
 
+    def is_misstroke(self):
+        return sound.parse(self.sound).is_misstroke()
+
+    def desirability(self):
+        if self.is_brief:
+            return 0
+        elif self.is_misstroke():
+            return 2
+        else:
+            return 1
+
     def __repr__(self):
         return '<Entry %s %s %s _>' % (self.stroke, self.sound, self.word)
 
@@ -292,7 +303,8 @@ def stroke(value):
 
 @app.route("/word/<path:value>")
 def word(value):
-    es = Entry.query.filter_by(word=value)
+    es = list(Entry.query.filter_by(word=value))
+    es.sort(key=lambda s: s.desirability())
     available = set(map(lambda e: e.stroke, es))
     results = the_steno.reverse_translate(value)
     if results is None: results = []

@@ -6,14 +6,14 @@
 <h1>{{ word }}</h1>
 <table class="word-strokes">
 {% for e in es %}
-  <tr>
+<tr {% if e.is_misstroke() %} style="background:#FFE8E8" {% endif %}>
     <th><a href="{{ url_for("stroke", value=e.stroke) }}">{{ e.sound | sound }}</a></th>
     <td>{% if e.content %}{{ e.content | markdown }}{% else %}<em>(empty)</em>{% endif %}</td>
     <td class="edit"><a href="{{ url_for("stroke", value=e.stroke) }}?action=edit">edit</a></td>
   </tr>
 {% endfor %}
 {% for e in other_entries %}
-  <tr>
+  <tr style="background:#F2F2F2">
     <th><a href="{{ url_for("stroke", value=e.stroke) }}?action=edit">{{ e.sound | sound }}</a></th>
     <td><em>(default entry)</em></td>
     <td class="edit"><a href="{{ url_for("stroke", value=e.stroke) }}?action=edit">edit</a></td>

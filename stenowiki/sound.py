@@ -194,6 +194,8 @@ def parse(val):
 class Sounds:
     def __init__(self, sounds):
         self.sounds = sounds
+    def is_misstroke(self):
+        return any(map(lambda s: s.attr == "misstroke", self.sounds))
     def stroke(self):
         stroke = ""
         for sound in self.sounds:
