@@ -10,6 +10,13 @@
   {% endif %}
   </dd>
 {% endmacro %}
+{% macro render_tags(e) %}
+  {% if e.is_brief %}
+  <em style="float:left">Brief.&nbsp;</em>
+  {% elif e.is_misstroke() %}
+  <em style="float:left">Misstroke.&nbsp;</em>
+  {% endif %}
+{% endmacro %}
 <!doctype html>
 <html>
 <head>
