@@ -8,7 +8,7 @@
 {% for e in es %}
   <tr>
     <th><a href="{{ url_for("stroke", value=e.stroke) }}">{{ e.sound | sound }}</a></th>
-    <td>{{ e.content | markdown }}</td>
+    <td>{% if e.content %}{{ e.content | markdown }}{% else %}<em>(empty)</em>{% endif %}</td>
     <td class="edit"><a href="{{ url_for("stroke", value=e.stroke) }}?action=edit">edit</a></td>
   </tr>
 {% endfor %}
