@@ -14,6 +14,7 @@ phonemes = collections.OrderedDict([
         ("r", "R"),
         ("*", "*"),
         ("-f", "-F"),
+        ("-fs", "-F"),
         ("-v", "-F"),
         ("-r", "-R"),
         ("-p", "-P"),
@@ -225,7 +226,10 @@ class Sounds:
             td = etree.SubElement(phon_row, 'span', { "class": sound.attr + " cell" })
             if isinstance(sound, Phoneme):
                 out = sound.phoneme.replace("*", "")
-                if out.find("-") == 0:
+                # special case
+                if out == "fs" or out == "-fs":
+                    td.text = "s"
+                elif out.find("-") == 0:
                     td.text = out[1:]
                 else:
                     td.text = out
@@ -366,7 +370,11 @@ def guess_sound(stroke):
         done = False
         for m in meanings:
             if stroke.startswith(m["from"], i):
-                sounds.append(Phoneme(m["to"], m["from"], "phoneme"))
+                if not isinstance(m["to"], str):
+                    for to in m["to"]:
+                        sounds.append(Phoneme(to, phonemes[to], "phoneme"))
+                else:
+                    sounds.append(Phoneme(m["to"], m["from"], "phoneme"))
                 i += len(m["from"])
                 done = True
                 break
