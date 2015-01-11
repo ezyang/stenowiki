@@ -45,7 +45,9 @@ class StringOutput():
     def reset(self):
         self.buffer = ""
     def get(self):
-        if self.buffer[0] == " ":
+        if len(self.buffer) == 0:
+            return ""
+        elif self.buffer[0] == " ":
             return self.buffer[1:]
         else:
             return self.buffer
