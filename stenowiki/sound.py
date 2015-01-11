@@ -165,6 +165,12 @@ def parse(val):
                 attr = 'misstroke'
                 sounds.append(Phoneme("", stroke, attr))
                 continue
+            match = re.match(r'^~([A-Z*\-]*)$', t)
+            if match:
+                stroke = match.group(1)
+                attr = 'custom'
+                sounds.append(Phoneme("", stroke, attr))
+                continue
             match = re.match(r'^(!?)(-?[a-z]+\*?)(?::([A-Z*\-]*))?', t)
             if match:
                 phoneme = match.group(2)
