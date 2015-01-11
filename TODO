@@ -1,32 +1,45 @@
-Other:
+The collaborative stroke wiki
 
-- Flag a stroke (because it's weird and you want to know what it means!)
+- Take this seriously: this is a way for people to share their own
+  custom dictionaries.
+
+    - Some sort of way to upload dictionaries. (Start of with a simple
+      JSON upload, but maybe something fancier like ability to access
+      your dictionary on Dropbox so that you can set the dictionary
+      to autoshare and forget about it.)  Publish it so that other
+      tools (like Stenomatic) can import the dictionary in.
+
+    - On the stroke page, we default to displaying the mapping in the
+      default Plover dictionary.  However, we then display alternate
+      mappings from user dictionaries.
+
+    - On the word page, we display all of the default Plover mappings.
+      Then we display added user mappings for the word.
+
+    - Maintain a relationship table between dictionaries and strokes;
+      when someone updates a dictionary, this relationship table is
+      updated differentially.
 
 - Spam filtering capabilities so that we can open edits to anonymous
 
-- User dictionary sharing!!
+- Export database to JSON
 
-- {{- g t}} for soundings without linking
+Other:
+
+- Unit tests
+
+- Flag a stroke (because it's weird and you want to know what it means!)
 
 - After editing stroke go to previous page (e.g. if one word page,
   go back to word page)
 
-- CSS rules for rendering misstrokes, and indicate a misstroke
-  differently in the UI
-
-- CSS rules for rendering briefs
-
 - On login, return to the page you previously were on
-
-- Export database to JavaScript
 
 - JavaScript API, search as you type
 
 - Nice widget for phonetic soundings: in particular, the widget
   can suggest the most probable next soundings, e.g. given -FP
   it can suggest "f p" or "ch"
-
-- Alternate rendering for some phonemes?
 
 - Ability to access history
 
