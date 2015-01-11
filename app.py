@@ -7,6 +7,9 @@ import bleach
 import markdown
 import markdown.extensions
 from markdown.util import etree
+import markdown.util
+
+markdown.util.BLOCK_LEVEL_ELEMENTS = re.compile("(?!)")
 
 import flask
 from flask import Flask, render_template, redirect, url_for, request
