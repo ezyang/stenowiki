@@ -204,11 +204,14 @@ class WikiLinkPattern(markdown.inlinepatterns.Pattern):
         strokes = steno.normalize(val)
         if strokes:
             stroke_text = '/'.join(map(lambda s: s.rtfcre, strokes))
-            el = etree.Element('a', {'href': url_for('stroke', value=stroke_text)})
             # warning: performance bomb!
             e = Entry.query.filter_by(stroke=stroke_text).first()
+            attr = {'href': url_for('stroke', value=stroke_text)}
             if e is None:
-                el.text = stroke_text
+                attr['class'] = 'missing'
+            el = etree.Element('a', attr)
+            if e is None:
+                el.append(sound.guess_sound(stroke_text).html())
             else:
                 el.append(sound.parse(e.sound).html())
             return el
@@ -305,6 +308,7 @@ def stroke(value):
         db_session.commit()
         return redirect(url_for("stroke", value=stroke_text))
     action = request.args.get('action')
+    if is_default and flask_login.current_user.is_authenticated(): action = "edit"
     sound_html = Markup(etree.tostring(sound.parse(e.sound).html(), method='html'))
     return render_template('stroke.html', e=e,
             sound_html=sound_html, is_default=is_default, action=action,

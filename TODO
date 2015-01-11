@@ -26,6 +26,9 @@ The collaborative stroke wiki
 
 Other:
 
+- Maybe you meant? (e.g. if you type stroke in word, or vice versa.)
+  Also fuzzy match
+
 - Behavior for prefix strokes is a bit wrong
 
 - Unit tests
@@ -47,9 +50,6 @@ Other:
 
 - More options for how links are rendered: e.g. don't include
   annotations, or also mention the word in a stroke link
-
-- Render broken links differently.  Also, distinguish between words
-  which are not strokeable, versus words which have no entries?
 
 - Handle orthographics in reverse lookup (and upstream to Plover!)
 
