@@ -330,6 +330,7 @@ meanings = [
     { "from": "PHR", "to": ["p", "l"] }, # not m-r
     { "from": "FPL", "to": ["-fs", "-m"] }, # not ch-l
     { "from": "BGS", "to": "kshun" },
+    { "from": "FRB", "to": "-rv" }, # not f-sh
     { "from": "SR", "to": "v" },
     { "from": "TK", "to": "d" },
     { "from": "TP", "to": "f" },
