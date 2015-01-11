@@ -26,6 +26,8 @@ The collaborative stroke wiki
 
 Other:
 
+- Behavior for prefix strokes is a bit wrong
+
 - Unit tests
 
 - Flag a stroke (because it's weird and you want to know what it means!)
