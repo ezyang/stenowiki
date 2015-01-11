@@ -191,7 +191,7 @@ def filter_sound(arg):
     # output <span />
     return Markup(etree.tostring(sound.parse(arg).html(), method='html'))
 
-ALLOWED_TAGS = ('b','i','strong','em','p','div','span','a','ul','ol','li','br','code','del','pre','s','strike','sub','sup','table')
+ALLOWED_TAGS = ('b','i','strong','em','p','div','span','a','ul','ol','li','br','code','del','pre','s','strike','sub','sup','table','tr','td','th')
 
 ALLOWED_ATTRIBUTES = { '*': ['class'], 'a': ['href'] }
 
