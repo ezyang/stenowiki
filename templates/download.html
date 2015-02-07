@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+{% block title %}
+  Download - StenoWiki
+{% endblock %}
+{% block content %}
+  <h1>Download - StenoWiki</h1>
+    <p>One of the goals of StenoWiki is to be a useful information source for
+    other stenography applications.  Use this page to download a copy of the
+    StenoWiki database for your own use.  (Unfortunately, at the moment descriptions
+    are not exported, <a href="mailto:ezyang@cs.stanford.edu">let me know</a> if you
+    need them.  Also, the format of the exported file may change.)
+    </p>
+    <form method="post" action="">
+      {{ form.csrf_token }}
+      <input type="submit" value="Download">
+    </form>
+{% endblock %}

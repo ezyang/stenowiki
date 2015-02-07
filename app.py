@@ -325,6 +325,24 @@ def word(value):
     other_entries = map(lambda s: Entry(s, value, str(sound.guess_sound(s))), other_strokes)
     return render_template('word.html', word=value, es=es, other_entries=other_entries)
 
+class DownloadForm(flask_wtf.Form):
+    pass
+
+@app.route('/download', methods=('GET', 'POST'))
+def download():
+    form = DownloadForm(request.form)
+    if request.method == 'POST' and form.validate():
+        es = Entry.query.all()
+        def generate():
+            yield "stroke,sound,word,is_brief,is_misstroke\n"
+            for e in es:
+                # TODO: this will do poorly if there are commas
+                yield "%s,%s,%s,%d,%d\n" % (e.stroke, e.sound, e.word, e.is_brief, e.is_misstroke())
+        r = flask.Response(generate(), mimetype='text/csv')
+        r.headers['Content-Disposition'] = 'attachment; filename=stenowiki.csv'
+        return r
+    return render_template('download.html', form=form)
+
 @app.teardown_appcontext
 def shutdown_session(exception=None):
     db_session.remove()
