@@ -109,6 +109,8 @@ phonemes = collections.OrderedDict([
         # suffix keys (s is a repeat)
         ("-ed", "-D"),
         ("-ing", "-G"),
+        # miscellaneous prefixes
+        ("int", "SPW"),
         ])
 
 """
