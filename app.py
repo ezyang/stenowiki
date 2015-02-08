@@ -325,6 +325,13 @@ def word(value):
     other_entries = map(lambda s: Entry(s, value, str(sound.guess_sound(s))), other_strokes)
     return render_template('word.html', word=value, es=es, other_entries=other_entries)
 
+@app.route('/preview', methods=('GET', 'POST'))
+def preview():
+    # NB: skip CSRF validation
+    if request.method == 'POST':
+        return filter_markdown(request.form['content']).__html__()
+    return "POST content=$CONTENT to get rendered HTML"
+
 class DownloadForm(flask_wtf.Form):
     pass
 

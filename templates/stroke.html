@@ -5,6 +5,123 @@
   {% endif %}
   {{ e.stroke }} ({{ e.word }}) - StenoWiki
 {% endblock %}
+{% block head %}
+  <script src="{{ url_for("static", filename="pagedown/Markdown.Converter.js") }}"></script>
+  <script src="{{ url_for("static", filename="pagedown/Markdown.Sanitizer.js") }}"></script>
+  <script src="{{ url_for("static", filename="pagedown/Markdown.Editor.js") }}"></script>
+  <style>
+
+.wmd-panel
+{
+	margin-left: 25%;
+	margin-right: 25%;
+	width: 50%;
+	min-width: 500px;
+}
+
+.wmd-button-bar 
+{
+	width: 100%;
+	background-color: Silver; 
+}
+
+.wmd-input 
+{ 
+	height: 300px;
+	width: 100%;
+	background-color: Gainsboro;
+	border: 1px solid DarkGray;
+}
+
+.wmd-button-row 
+{
+	position: relative; 
+	margin-left: 5px;
+	margin-right: 5px;
+	margin-bottom: 5px;
+	margin-top: 10px;
+	padding: 0px;  
+	height: 20px;
+}
+
+.wmd-spacer
+{
+	width: 1px; 
+	height: 20px; 
+	margin-left: 14px;
+	
+	position: absolute;
+	background-color: Silver;
+	display: inline-block; 
+	list-style: none;
+}
+
+.wmd-button {
+    width: 20px;
+    height: 20px;
+    padding-left: 2px;
+    padding-right: 3px;
+    position: absolute;
+    display: inline-block;
+    list-style: none;
+    cursor: pointer;
+}
+
+.wmd-button > span {
+    background-image: url(/static/pagedown/wmd-buttons.png);
+    background-repeat: no-repeat;
+    background-position: 0px 0px;
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+}
+
+.wmd-spacer1
+{
+    left: 50px;
+}
+.wmd-spacer2
+{
+    left: 175px;
+}
+.wmd-spacer3
+{
+    left: 300px;
+}
+
+
+
+
+.wmd-prompt-background
+{
+	background-color: Black;
+}
+
+.wmd-prompt-dialog
+{
+	border: 1px solid #999999;
+	background-color: #F5F5F5;
+}
+
+.wmd-prompt-dialog > div {
+	font-size: 0.8em;
+	font-family: arial, helvetica, sans-serif;
+}
+
+
+.wmd-prompt-dialog > form > input[type="text"] {
+	border: 1px solid #999999;
+	color: black;
+}
+
+.wmd-prompt-dialog > form > input[type="button"]{
+	border: 1px solid #888888;
+	font-family: trebuchet MS, helvetica, sans-serif;
+	font-size: 0.8em;
+	font-weight: bold;
+}
+  </style>
+{% endblock %}
 {% block content %}
   <h1>
     {% if action == "edit" %}
@@ -30,16 +147,81 @@
       {{ form.csrf_token }}
       <dl class="forms">
         {{ render_field(form.sound) }}
-        {{ render_field(form.content) }}
+
+        <dt>{{ form.content.label }}</dt>
+        <dd><div>
+                <div id="wmd-button-bar"></div>
+                {{ form.content(id="wmd-input")|safe }}
+                <div class="wmd-preview" id="wmd-preview"></div>
+            </div>
+        {% if form.content.errors %}
+          <ul class="errors">
+          {% for error in field.errors %}
+            <li>{{ error }}</li>
+          {% endfor %}
+          </ul>
+        {% endif %}
+        </dd>
+
+        <script type="text/javascript">
+
+function steno_normalize(stroke) {
+    // ToDo: more in-depth normalization
+    if (/^(S?T?K?P?W?H?R?(A?O?\*?-?E?U?|-)F?R?P?B?L?G?T?S?D?Z?)(\/S?T?K?P?W?H?R?(A?O?\*?-?E?U?|-)F?R?P?B?L?G?T?S?D?Z?)*$/.test(stroke)) {
+        return stroke;
+    } else {
+        return false;
+    }
+}
+
+                var converter = Markdown.getSanitizingConverter();
+                // This is not exactly what is done server side, but it's a decent approximation
+                converter.hooks.chain("preSpanGamut", function (text, rbg) {
+                    return text.replace(/\[\[([^\]]+)\]\]/gm, function (whole, inner) {
+                        var strokes = steno_normalize(inner);
+                        // TODO: figure out how to not hardcode the path
+                        if (strokes) {
+                            return "<a href=\"/stroke/" + strokes + "\">" + strokes + "</a>\n";
+                        } else {
+                            return "<a href=\"/word/" + inner + "\">" + inner + "</a>\n";
+                        }
+                    });
+                });
+                converter.hooks.chain("preSpanGamut", function (text, rbg) {
+                    return text.replace(/\{\{([^\}]+)\}\}/gm, function (whole, inner) {
+                        return '<code>' + inner + '</code>';
+                    });
+                });
+                var editor = new Markdown.Editor(converter);
+                editor.run();
+
+                function preview() {
+                    var xhr = new XMLHttpRequest();
+                    xhr.onreadystatechange = function() {
+                        // TODO: flashes a lot!  want some sort of differential update react-style
+                        document.getElementById("wmd-preview").innerHTML = xhr.responseText;
+                    }
+                    xhr.open('POST', '/preview', true);
+                    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                    var csrftoken = "{{ csrf_token() }}";
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                    xhr.send('content=' + encodeURIComponent(document.getElementById("wmd-input").value));
+                    return false;
+                }
+        </script>
         {{ render_field(form.is_brief) }}
       </dl>
       <input type="submit" value="Submit">
+      <input type="button" value="Preview" onclick="return preview()">
     </form>
     <p>
       By clicking the "Submit" button, you irrevocably agree to release your contribution under the <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>, with the understanding that a hyperlink or URL is sufficient for CC BY-SA 4.0 attribution.
     </p>
     <p>
-      <strong>How to edit</strong>:  The phonetic sounding is a space-separated list of phonetic
+    <strong>Editing description</strong>:  The description box takes <a href="http://daringfireball.net/projects/markdown/syntax">Markdown</a>, but with two enhancements: you can make phonetic descriptions using a double curly braces (<code>{{ '{{h a t}}' }}</code>) and link to strokes/words using double square brackets (<code>[[hat]]</code> and <code>[[HAT]]</code>).  The preview box has imperfect support for displaying these extensions; you can click the Preview button to see how they <em>actually</em> will be rendered.
+    </p>
+    <p>
+      <strong>Editing phonetic sounding</strong>:  The phonetic sounding is a space-separated list of phonetic
       sounds which combine together to form the stroke in question.  For
       example, <code>j u f t</code> phonetically sounds the stroke for SKWRUFT.
       The full syntax is:
@@ -65,9 +247,6 @@
       on the right side, using the same rules as steno strokes.  Also, the asterisked
       vowel phonemes are a hack to help get the asterisk in the right position when a vowel
       chord extends over the asterisk key.)
-    </p>
-    <p>
-    The description box takes <a href="http://daringfireball.net/projects/markdown/syntax">Markdown</a>, but with two enhancements: you can link to strokes using a double curly brace (<code>{{ '{{HAT}}' }}</code>) and words using double square brackets (<code>[[hat]]</code>).
     </p>
     {% else %}
     Sorry, you have to be logged in to edit.

@@ -1,3 +1,6 @@
 [submodule "plover"]
 	path = plover
 	url = https://github.com/openstenoproject/plover.git
+[submodule "static/pagedown"]
+	path = static/pagedown
+	url = https://github.com/ujifgc/pagedown.git
