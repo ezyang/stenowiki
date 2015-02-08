@@ -181,9 +181,9 @@ function steno_normalize(stroke) {
                         var strokes = steno_normalize(inner);
                         // TODO: figure out how to not hardcode the path
                         if (strokes) {
-                            return "<a href=\"/stroke/" + strokes + "\">" + strokes + "</a>\n";
+                            return "<a href=\"/stroke/" + strokes + "\">" + strokes + "</a>";
                         } else {
-                            return "<a href=\"/word/" + inner + "\">" + inner + "</a>\n";
+                            return "<a href=\"/word/" + inner + "\">" + inner + "</a>";
                         }
                     });
                 });
