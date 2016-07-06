@@ -242,6 +242,11 @@ def index():
     es = Entry.query.order_by(Entry.timestamp.desc()).limit(20)
     return render_template('index.html', es=es)
 
+@app.route("/browse/<string:prefix>")
+def browse(prefix):
+    es = Entry.query.filter(Entry.word.ilike(prefix + '%'))
+    return render_template('browse.html', prefix=prefix, es=es)
+
 @app.route("/search")
 def search():
     word = request.args.get('word')

@@ -13,6 +13,8 @@
   <form method="get" action="{{ url_for("search") }}">
     <p>To get started, look up a word: <input type="text" name="word"><input type="submit" value="Go!"></p>
   </form>
+  <p>Or select a letter to browse:</p>
+  {{ alphabet("") }}
   <p>Recently updated:</p>
     <table class="word-strokes">
       {% for e in es %}

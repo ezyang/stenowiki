@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+{% block title %}
+  Browse {{ prefix }} - StenoWiki
+{% endblock %}
+{% block content %}
+  <h1>Browse {{ prefix }}</h1>
+    {{ alphabet(prefix) }}
+    <table class="word-strokes">
+      {% for e in es %}
+        <tr>
+          <th><a href="{{ url_for("word", value=e.word) }}">{{ e.word }}</a></th>
+          <th><a href="{{ url_for("stroke", value=e.stroke) }}">{{ e.sound | sound }}</a></th>
+          <td>
+            {{ render_tags(e) }}
+            {{ e.content | markdown }}
+          </td>
+          <td class="edit"><a href="{{ url_for("stroke", value=e.stroke) }}?action=edit">edited</a> by&nbsp;{{ e.user.username }}</td>
+        </tr>
+      {% endfor %}
+    </table>
+{% endblock %}

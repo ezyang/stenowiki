@@ -17,6 +17,21 @@
   <em style="float:left">Misstroke.&nbsp;</em>
   {% endif %}
 {% endmacro %}
+{% macro alphabet(current_l) %}
+<table class="alphabet">
+  <tr>
+    {% for l in "abcdefghijklmnopqrstuvwxyz" %}
+    <td>
+    {% if l == current_l %}
+    <strong>{{l}}</strong>
+    {% else %}
+    <a href="{{ url_for("browse", prefix=l) }}">{{l}}</a>
+    {% endif %}
+    </td>
+    {% endfor %}
+  </tr>
+</table>
+{% endmacro %}
 <!doctype html>
 <html>
 <head>
@@ -75,6 +90,14 @@ table.word-strokes p {
 textarea {
     width: 40em;
     height: 20em;
+}
+table.alphabet {
+  text-align:center;
+  margin-left:auto;
+  margin-right:auto;
+}
+table.alphabet td {
+  width:1.4em;text-transform:uppercase;
 }
 .errors { color: darkred }
  dl.forms {
